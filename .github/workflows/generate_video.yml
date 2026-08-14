@@ -32,7 +32,7 @@ jobs:
           [app]
           llm_provider = "gemini"
           gemini_api_key = "${GEMINI_API_KEY}"
-          gemini_model_name = "gemini-1.5-flash"
+          gemini_model_name = ""
           pexels_api_keys = ["${PEXELS_API_KEY}"]
           EOF
 
