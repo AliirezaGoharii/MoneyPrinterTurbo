@@ -2,7 +2,6 @@ name: Generate Video Automatically
 
 on:
   schedule:
-    # اجرا در ساعت‌های ۱۰:۰۰ صبح و ۱۲:۰۰ ظهر به وقت ایران (۶:۳۰ و ۸:۳۰ به وقت UTC)
     - cron: '30 6,8 * * *'
   workflow_dispatch:
 
@@ -32,13 +31,9 @@ jobs:
           cat <<EOF > config.toml
           [app]
           llm_provider = "gemini"
-
-          [gemini]
-          api_key = "${GEMINI_API_KEY}"
-          model_name = "gemini-1.5-flash"
-
-          [pexels]
-          api_key = "${PEXELS_API_KEY}"
+          gemini_api_key = "${GEMINI_API_KEY}"
+          gemini_model_name = "gemini-1.5-flash"
+          pexels_api_keys = ["${PEXELS_API_KEY}"]
           EOF
 
       - name: Generate Video
