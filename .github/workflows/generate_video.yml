@@ -1,48 +1,37 @@
-name: Generate Video Automatically
+name: Build and Push Docker Image
 
 on:
-  schedule:
-    - cron: '30 6,8 * * *'
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-  build-and-generate:
+  build-and-push:
     runs-on: ubuntu-latest
+    
+    # Add explicit permissions here
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          python-version: '3.11'
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Create Configuration File
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
-        run: |
-          cat <<EOF > config.toml
-          [app]
-          llm_provider = "gemini"
-          gemini_api_key = "${GEMINI_API_KEY}"
-          gemini_model_name = "gemini-2.5-flash"
-          pexels_api_keys = ["${PEXELS_API_KEY}"]
-          EOF
-
-      - name: Generate Video
-        run: |
-          python cli.py --video-subject "Interesting AI Facts"
-
-      - name: Upload Video Artifact
-        uses: actions/upload-artifact@v4
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v6
         with:
-          name: generated-video
-          path: storage/tasks/
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/moneyprinterturbo:main
           
