@@ -2,6 +2,7 @@ name: Generate Video Automatically
 
 on:
   schedule:
+    # اجرا در ساعت‌های ۱۰:۰۰ صبح و ۱۲:۰۰ ظهر به وقت ایران (۶:۳۰ و ۸:۳۰ به وقت UTC)
     - cron: '30 6,8 * * *'
   workflow_dispatch:
 
@@ -23,10 +24,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Generate Video
+      - name: Create Configuration File
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+        run: |
+          cat <<EOF > config.toml
+          [app]
+          llm_provider = "gemini"
+
+          [gemini]
+          api_key = "${GEMINI_API_KEY}"
+          model_name = "gemini-1.5-flash"
+
+          [pexels]
+          api_key = "${PEXELS_API_KEY}"
+          EOF
+
+      - name: Generate Video
         run: |
           python cli.py --video-subject "Interesting AI Facts"
 
